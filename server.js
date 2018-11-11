@@ -10,7 +10,7 @@ const moment = require('moment')
 const cheerio = require('cheerio')
 const request = require('request');
 var fs = require('fs');
-const mysql      = require('mysql');
+const mysql = require('mysql');
 const app = express();
 
 
@@ -24,67 +24,68 @@ app.use(express.static(path.join(__dirname, 'client/build')));
 var teams = ["ARI", "ATL", "BAL", "BOS", "CHC", "CHW", "CIN", "CLE", "COL", "DET", "HOU", "KCR", "ANA", "LAD", "FLA", "MIL", "MIN", "NYM", "NYY", "OAK", "PHI", "PIT", "SDP", "SFG", "SEA", "STL", "TBD", "TEX", "TOR", "WSN"]
 var playerURL = 'https://www.baseball-reference.com/register/player.fcgi?id='
 
-var teamObj={}
-var teamObjects=[]
-var teamPlayers=[]
+var teamObj = {}
+var teamObjects = []
+var teamPlayers = []
 
 const connection = mysql.createConnection({
-  host: 'steveport.com',
-  port: '3306',
-  user: 'tranch5_sjr',
-  password: 'modernWater360',
-  database: 'tranch5_milb'
+    host: 'steveport.com',
+    port: '3306',
+    user: 'tranch5_sjr',
+    password: 'modernWater360',
+    database: 'tranch5_milb'
 });
+
 function getTeams() {
-	 connection.connect();
-		request({
-		    method: 'GET',
-		    url: 'https://www.baseball-reference.com/teams/' + teams[29] + '/2018.shtml'
+    connection.connect();
+    request({
+        method: 'GET',
+        url: 'https://www.baseball-reference.com/teams/' + teams[29] + '/2018.shtml'
 
-		}, (err, res, body) => {
-		    const $ = cheerio.load(body);
-		    if (err) return console.error(err);
-		 	var codes =[]
-		 	var codesa =[]	
-		     $('td').each(function (i, e) {
-		   if($(this).data('appendCsv')) {
-        codes[i] = $(this).data('appendCsv');
-     } 
-    });
-	connection.query( `CREATE TABLE ${teams[29].toLowerCase()} (playerCode VARCHAR(15))`, function (error, results) {
-      if (error) throw error;
-     console.log(results)
-    });
-		    
-		   for(let i = 0; i < codes.length; i++) {
-		   	if(codes[i] !== undefined) {
-		   		codesa.push(codes[i])
-		   	}
-		   }  
-		   var codesb = Array.from(new Set(codesa))
-		   console.log(codesb)
-		   console.log(teams[29])
-			
-			for(let i = 0; i < codesb.length; i++) {
-				connection.query(`INSERT INTO ${teams[29].toLowerCase()} VALUES ('${codesb[i]}')`, function(err, res) {
-					      if (err) throw err;   
-				})
+    }, (err, res, body) => {
+        const $ = cheerio.load(body);
+        if (err) return console.error(err);
 
-}
-connection.end();
-		});
+        $('td').each(function(i, e) {
+            if ($(this).data('appendCsv')) {
+                codes[i] = $(this).data('appendCsv');
+            }
+        });
+        connection.query(`CREATE TABLE ${teams[29].toLowerCase()} (playerCode VARCHAR(15))`, function(error, results) {
+            if (error) throw error;
+            console.log(results)
+        });
+
+        for (let i = 0; i < codes.length; i++) {
+            if (codes[i] !== undefined) {
+                codesa.push(codes[i])
+            }
+        }
+        var codesb = Array.from(new Set(codesa))
+        console.log(codesb)
+        console.log(teams[29])
+
+        for (let i = 0; i < codesb.length; i++) {
+            connection.query(`INSERT INTO ${teams[29].toLowerCase()} VALUES ('${codesb[i]}')`, function(err, res) {
+                if (err) throw err;
+            })
+
+
+        }
+        connection.end();
+    });
 
 }
 getTeams()
 
 // https://github.com/mysqljs/mysql
 
-app.get('/players', function (req, res) {
+app.get('/players', function(req, res) {
     connection.connect();
 
-    connection.query('SELECT * FROM players17', function (error, results, fields) {
-      if (error) throw error;
-      res.send(results)
+    connection.query('SELECT * FROM players17', function(error, results, fields) {
+        if (error) throw error;
+        res.send(results)
     });
 
     connection.end();
@@ -95,21 +96,3 @@ app.get('/players', function (req, res) {
 const port = process.env.PORT || 5001;
 app.listen(port);
 console.log(`Listening on ${port}`);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

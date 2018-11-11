@@ -2,8 +2,10 @@ const request = require('request');
 var fs = require('fs');
 const mysql = require('mysql');
 const cheerio = require('cheerio')
+const axios = require('axios')
 
 var codes =[]
+var codes2 = []
 const connection = mysql.createConnection({
     host: 'steveport.com',
     port: '3306',
@@ -13,47 +15,82 @@ const connection = mysql.createConnection({
 });
 connection.connect();
 
-    connection.query('SELECT url FROM playerurls', function(error, results, fields) {
-    	 if (error) throw error;
-    	var intactURL = results[0].url
-    	var splitURL = intactURL.split('/')
-    	var playerCode = splitURL[5].split('.')[0]
-    	console.log(playerCode)
-    	var playerObj = {}
-    	var playerArr = []
-    request({
+connection.query('SELECT url FROM playerurls', function(error, results, fields) {
+     if (error) throw error;
+        var intactURL = results[0].url
+        var splitURL = intactURL.split('/')
+        var playerCode = splitURL[5].split('.')[0]
+        console.log(playerCode)
+        var playerObj = {}
+        var playerArr = []
+        var base_url = 'https://www.baseball-reference.com/players/m/marteke01.shtml'//results[0].url
+
+axios.get(base_url).then( (response) => {
+  let $ = cheerio.load(response.data);
+  let codes = [];
+  $('.minors_table').each( (i, elm) => {
+    codes.push( {
+      player: playerCode,
+      year: $(elm).children().first().attr('data-stat', 'year_ID').text(),
+      age: $(elm).children().eq(1).first().attr('data-stat', 'year_ID').text(),
+      franchise: $(elm).children().eq(2).first().attr('data-stat', 'year_ID').text(),
+      classes: $(elm).children().eq(3).first().attr('data-stat', 'year_ID').text(),
+      teams: $(elm).children().eq(29).first().attr('data-stat', 'year_ID').text(),
+
+    });
+  });
+  return(codes);
+})
+.then ( (codes) => {
+  console.log(codes);
+});
+
+
+
+
+
+/*    request({
         method: 'GET',
         url: 'https://www.baseball-reference.com/players/m/marteke01.shtml'//results[0].url
 
     }, (err, res, body) => {
     	 const $ = cheerio.load(body);
-
         if (err) return console.error(err);
-
-
-
-
         $('.minors_table').each(function(i, e) {
-        
-     		codes[i] =	$(this).data('stat', 'age').text()
-            
-              
-        })
-        
+     		codes[i] =	$(this).data('stat', 'age').text()             
+        })        
         for(let i = 0; i < codes.length; i++) {
         	playerObj = {
         playerName: playerCode,
         year:  codes[i].slice(0,4),
         age:  codes[i].slice(4,6),
-        parent: codes[i].slice(6,9),
+        parent: codes[i].slice(6,13),
+        theRest: codes[i].slice(13, 26),
         }
         playerArr.push(playerObj)
-        
         }
-console.log(playerArr)
 
+    $('tr.minors_table td').children(function(i, e) {
+      if($(this).data('stat', 'age')){
+        codes2[i] = $(this).data('stat','lg_ID').attr()
+}
+console.log(e.data)
     })
-
-
-    })
+    })*/
+})
  connection.end();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
