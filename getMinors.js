@@ -1,3 +1,5 @@
+//'https://www.baseball-reference.com/players/m/marteke01.shtml'
+
 const request = require('request');
 var fs = require('fs');
 const mysql = require('mysql');
@@ -15,22 +17,26 @@ const connection = mysql.createConnection({
 });
 connection.connect();
 
-connection.query('SELECT url FROM playerurls', function(error, results, fields) {
+
+connection.query('SELECT url FROM playerurls limit 5', function(error, results, fields) {
      if (error) throw error;
-        var intactURL = results[0].url
-        var splitURL = intactURL.split('/')
-        var playerCode = splitURL[5].split('.')[0]
-        console.log(playerCode)
+        for(let j = 0; j < 5; j++) {
+
+        var intactURL = results[j].url
+        var splitURL = intactURL.split('/')[5].split('.')[0]
+        
+        
         var playerObj = {}
         var playerArr = []
-        var base_url = 'https://www.baseball-reference.com/players/m/marteke01.shtml'//results[0].url
+        var base_url = results[j].url
 
 axios.get(base_url).then( (response) => {
   let $ = cheerio.load(response.data);
   let codes = [];
+  var playerCode = splitURL
   $('.minors_table').each( (i, elm) => {
     codes.push( {
-      player: playerCode,
+      player: results[j].url.split('/')[5].split('.')[0],
       year: $(elm).children().first().attr('data-stat', 'year_ID').text(),
       age: $(elm).children().eq(1).first().attr('data-stat', 'year_ID').text(),
       franchise: $(elm).children().eq(2).first().attr('data-stat', 'year_ID').text(),
@@ -44,7 +50,7 @@ axios.get(base_url).then( (response) => {
 .then ( (codes) => {
   console.log(codes);
 });
-
+}
 
 
 
