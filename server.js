@@ -39,21 +39,19 @@ function getTeams() {
 	 connection.connect();
 		request({
 		    method: 'GET',
-		    url: 'https://www.baseball-reference.com/teams/' + teams[2] + '/2018.shtml'
+		    url: 'https://www.baseball-reference.com/teams/' + teams[29] + '/2018.shtml'
 
 		}, (err, res, body) => {
 		    const $ = cheerio.load(body);
 		    if (err) return console.error(err);
-
 		 	var codes =[]
-		 	var codesa =[]
-		
+		 	var codesa =[]	
 		     $('td').each(function (i, e) {
 		   if($(this).data('appendCsv')) {
         codes[i] = $(this).data('appendCsv');
      } 
     });
-	connection.query( `CREATE TABLE ${teams[2].toLowerCase()} (playerCode VARCHAR(15))`, function (error, results) {
+	connection.query( `CREATE TABLE ${teams[29].toLowerCase()} (playerCode VARCHAR(15))`, function (error, results) {
       if (error) throw error;
      console.log(results)
     });
@@ -65,12 +63,11 @@ function getTeams() {
 		   }  
 		   var codesb = Array.from(new Set(codesa))
 		   console.log(codesb)
-		   console.log(teams[2])
+		   console.log(teams[29])
 			
 			for(let i = 0; i < codesb.length; i++) {
-				connection.query(`INSERT INTO ${teams[2].toLowerCase()} VALUES ('${codesb[i]}')`, function(err, res) {
-					      if (err) throw err;
-     
+				connection.query(`INSERT INTO ${teams[29].toLowerCase()} VALUES ('${codesb[i]}')`, function(err, res) {
+					      if (err) throw err;   
 				})
 
 }
