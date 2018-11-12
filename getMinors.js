@@ -22,15 +22,48 @@ connection.query('SELECT url FROM playerurls limit 5', function(error, results, 
      if (error) throw error;
         for(let j = 0; j < 5; j++) {
 
-        var intactURL = results[j].url
-        var splitURL = intactURL.split('/')[5].split('.')[0]
-        
-        
-        var playerObj = {}
-        var playerArr = []
-        var base_url = results[j].url
+        let intactURL = results[j].url
+        let splitURL = intactURL.split('/')[5].split('.')[0]        
+        let playerObj = {}
+        let playerArr = []
+        let base_url = results[j].url
 
-axios.get(base_url).then( (response) => {
+
+const parseAndPrint = async (url) => {
+    try {
+    const response = await axios.get(base_url)
+    const $ = cheerio.load(response.data)  
+      let codes = [];
+      let playerCode = splitURL
+  $('.minors_table').each( (i, elm) => {
+    codes.push( {
+      player: results[j].url.split('/')[5].split('.')[0],
+      year: $(elm).children().first().attr('data-stat', 'year_ID').text(),
+      yearlg: $(elm).children().first().attr('data-stat', 'year_ID').text(),
+      age: $(elm).children().eq(1).first().attr('data-stat', 'lg_ID').text(),
+      franchise: $(elm).children().eq(2).first().attr('data-stat', 'year_ID').text(),
+      classes: $(elm).children().eq(3).first().attr('data-stat', 'year_ID').text(),
+      teams: $(elm).children().eq(29).first().attr('data-stat', 'year_ID').text(),
+
+    });
+  }); 
+  console.log(codes) 
+
+
+  for(let i = 0; i < codes.length; i++) {
+    connection.query(`INSERT INTO  playersminor (player, yr, age, franchise, classes, teams) 
+        VALUES ("${codes[i].player}", "${codes[i].year}", "${codes[i].age}", "${codes[i].franchise}","${codes[i].classes}", "${codes[i].teams}")`) 
+    }
+    } catch (error) {
+
+    console.error(error)
+  }
+ 
+}
+var runScraper = setInterval(parseAndPrint, 2000)
+}
+
+/*axios.get(base_url).then( (response) => {
   let $ = cheerio.load(response.data);
   let codes = [];
   var playerCode = splitURL
@@ -45,12 +78,14 @@ axios.get(base_url).then( (response) => {
 
     });
   });
+
   return(codes);
 })
 .then ( (codes) => {
   console.log(codes);
 });
-}
+
+}*/
 
 
 
@@ -84,7 +119,7 @@ console.log(e.data)
     })
     })*/
 })
- connection.end();
+
 
 
 
