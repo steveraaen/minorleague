@@ -1,26 +1,9 @@
-// mongoimport -h ds131003-a0.mlab.com:31003 -d prodparking -c signs -u steve -p modernWater360 --file signs.js
-// mongoexport -h ds239128.mlab.com:39128 -d heroku_d7twbhf6 -c meters -u steve -p modernWater360 -o meters.json
-// mongoimport -h ds131003-a0.mlab.com:31003 -d prodparking -c meters -u steve -p modernWater360 --file meters.json
-const express = require('express');
-const path = require('path');
-const mongoose = require('mongoose');
-mongoose.Promise = require('bluebird')
-const bodyParser = require('body-parser')
-const moment = require('moment')
+
 const cheerio = require('cheerio')
 const request = require('request');
 var fs = require('fs');
 const mysql = require('mysql');
-const app = express();
 
-
-// ------ Setup middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.text());
-app.use(bodyParser.json({ type: "application/vnd.api+json" }));
-// ------ Serve static files from the React app
-app.use(express.static(path.join(__dirname, 'client/build')));
 var teams = ["ARI", "ATL", "BAL", "BOS", "CHC", "CHW", "CIN", "CLE", "COL", "DET", "HOU", "KCR", "LAA", "LAD", "MIA", "MIL", "MIN", "NYM", "NYY", "OAK", "PHI", "PIT", "SDP", "SFG", "SEA", "STL", "TBR", "TEX", "TOR", "WSN"]
 var playerURL = 'https://www.baseball-reference.com/register/player.fcgi?id='
 
